@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer - Open PDFs Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .logo::before {
+            content: "📄";
+            margin-right: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: #64748b;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
+
+        .upload-zone {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: #667eea;
+            background: #f1f5f9;
+        }
+
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: #e0e7ff;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #dc2626;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                margin: 0.5rem 0;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">PDF Viewer Pro</div>
+        <p class="subtitle">Open and view PDF documents online with our powerful, fast, and secure PDF viewer</p>
+        
+        <div class="input-section">
+            <input type="text" id="urlInput" class="url-input" placeholder="Enter PDF URL (e.g., https://example.com/document.pdf)">
+            <button onclick="openPdfFromUrl()" class="btn btn-primary">
+                🔗 Open PDF from URL
+            </button>
+        </div>
+        
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📁</div>
+            <h3>Drop your PDF here</h3>
+            <p>or click to browse files</p>
+            <input type="file" id="fileInput" class="file-input" accept=".pdf">
+        </div>
+        
+        <button onclick="document.getElementById('fileInput').click()" class="btn btn-secondary">
+            📂 Choose PDF File
+        </button>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Preparing PDF viewer...</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-title">Fast Loading</div>
+                <div class="feature-desc">Quick PDF rendering and smooth navigation</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Mobile Friendly</div>
+                <div class="feature-desc">Works perfectly on all devices</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">Secure</div>
+                <div class="feature-desc">Your documents are processed securely</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // File input handler
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type === 'application/pdf') {
+                    openPdfFromFile(file);
+                } else if (file) {
+                    showError('Please select a valid PDF file');
+                }
+            });
+
+            // Upload zone drag & drop
+            const uploadZone = document.getElementById('uploadZone');
+            
+            uploadZone.addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type === 'application/pdf') {
+                    openPdfFromFile(files[0]);
+                } else {
+                    showError('Please drop a valid PDF file');
+                }
+            });
+
+            // URL input enter key
+            document.getElementById('urlInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    openPdfFromUrl();
+                }
+            });
+        });
+
+        function openPdfFromUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                showError('Please enter a PDF URL');
+                return;
+            }
+
+            // Validate URL format
+            if (!isValidUrl(url)) {
+                showError('Please enter a valid URL');
+                return;
+            }
+
+            showLoading();
+            hideError();
+
+            // Create the viewer URL with the PDF URL as a parameter
+            const viewerUrl = `viewer.html?url=${encodeURIComponent(url)}`;
+            
+            // Open in new tab
+            const newWindow = window.open(viewerUrl, '_blank');
+            
+            if (newWindow) {
+                hideLoading();
+                // Optional: Clear the input after successful opening
+                document.getElementById('urlInput').value = '';
+            } else {
+                hideLoading();
+                showError('Please allow popups for this site to open the PDF viewer');
+            }
+        }
+
+        function openPdfFromFile(file) {
+            showLoading();
+            hideError();
+
+            // Create a blob URL for the file
+            const blobUrl = URL.createObjectURL(file);
+            
+            // Create the viewer URL with the blob URL as a parameter
+            const viewerUrl = `viewer.html?url=${encodeURIComponent(blobUrl)}&filename=${encodeURIComponent(file.name)}`;
+            
+            // Open in new tab
+            const newWindow = window.open(viewerUrl, '_blank');
+            
+            if (newWindow) {
+                hideLoading();
+                // Store the blob URL so it can be revoked later if needed
+                newWindow.addEventListener('beforeunload', function() {
+                    URL.revokeObjectURL(blobUrl);
+                });
+            } else {
+                hideLoading();
+                showError('Please allow popups for this site to open the PDF viewer');
+                URL.revokeObjectURL(blobUrl);
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
